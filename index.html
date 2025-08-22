@@ -1,250 +1,763 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Galvis Edit - Creador de Contenido</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ee0979" />
+  <title>The Galvis Edit — Creador de Contenido</title>
 
-<!-- Fuentes -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Fuentes & Iconos -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
 
-<style>
-:root {
-  --primary-color: #ee0979;
-  --secondary-color: #ff6a00;
-  --bg-color: #f5f5f5;
-  --text-color: #333;
-  --card-bg: #fff;
-}
+  <style>
+    :root{
+      --primary: #ee0979;
+      --secondary: #ff6a00;
+      --bg: #f8fafc; /* Cambiado de beige (#fdfcf6) a blanco suave */
+      --text: #222;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --line: #e6e6e6;
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+      --radius: 20px;
+      --maxw: 1200px;
+    }
+    body.dark{
+      --bg: #1a1e29; /* Cambiado a gris oscuro para modo oscuro */
+      --text: #e9e9ef;
+      --muted: #a1a1aa;
+      --card: #232733;
+      --line: #3a3f4f;
+      --shadow: 0 10px 30px rgba(0,0,0,.4);
+    }
 
-* { box-sizing: border-box; margin:0; padding:0; font-family:'Poppins',sans-serif; }
-body { background: var(--bg-color); color: var(--text-color); line-height:1.6; }
+    *{box-sizing: border-box;}
+    html, body{margin: 0; padding: 0;}
+    body{
+      font-family: 'Poppins', system-ui, Segoe UI, Roboto, Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      transition: background .35s ease, color .35s ease;
+      min-height: 100vh; /* Asegura que el fondo cubra toda la página */
+    }
+    img{max-width: 100%; height: auto; display: block; border-radius: 16px;}
 
-a { text-decoration: none; color: inherit; }
-button { cursor: pointer; }
+    /* NAV */
+    nav{
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: saturate(120%) blur(8px);
+      background: color-mix(in hsl, var(--card) 85%, transparent);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-wrap{
+      max-width: var(--maxw); margin: auto; padding: .8rem 1.2rem; /* Más padding */
+      display: flex; align-items: center; gap: 16px; justify-content: space-between;
+    }
+    .brand{display: flex; align-items: center; gap: 12px; font-weight: 700;}
+    .brand-badge{
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: grid; place-items: center; color: #fff; box-shadow: var(--shadow);
+    }
+    .nav-links{display: flex; gap: 20px; flex-wrap: wrap;}
+    .nav-links a{
+      text-decoration: none; color: var(--text); font-weight: 600; font-size: .95rem;
+      padding: 12px 14px; border-radius: 10px; transition: all .25s ease;
+    }
+    .nav-links a:hover{background: color-mix(in hsl, var(--primary) 12%, transparent); color: var(--primary);}
+    .burger{display: none; border: none; background: transparent; font-size: 22px;}
 
-header {
-  position: fixed; top:0; left:0; width:100%; background: rgba(255,255,255,0.95); z-index:1000;
-  display:flex; justify-content:space-between; align-items:center; padding:1rem 2rem; box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
-header .logo { font-weight:700; font-size:1.5rem; color: var(--primary-color);}
-header nav a { margin-left:1.5rem; font-weight:600; transition:0.3s;}
-header nav a:hover { color: var(--secondary-color); }
+    /* FLOATING DOCK (Idioma + Tema) */
+    .dock{
+      position: fixed; inset: auto 20px 20px auto; /* Más espacio en márgenes */
+      display: flex; flex-direction: column; gap: 14px; z-index: 60; /* Más separación entre elementos */
+    }
+    .chip{
+      border: none; border-radius: 999px; padding: 12px 16px; font-weight: 700;
+      background: var(--card); color: var(--text); box-shadow: var(--shadow);
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      transition: all .25s ease;
+    }
+    .chip.active, .chip:hover{outline: 2px solid color-mix(in hsl, var(--primary) 35%, transparent);}
+    .chip .flag{font-size: 16px;}
+    .dock .row{display: flex; gap: 14px;} /* Más separación entre botones de idioma/tema */
 
-section { padding:100px 20px 60px; max-width:1200px; margin:0 auto; }
+    /* HERO */
+    header.hero{
+      position: relative; min-height: 82vh; display: grid; place-items: center; text-align: center; color: #fff; overflow: hidden;
+    }
+    .hero::before{
+      content: ""; position: absolute; inset: -20px;
+      background: linear-gradient(-45deg, var(--primary), var(--secondary), #ff0080, #7928ca);
+      background-size: 400% 400%; animation: grad 14s ease infinite; filter: saturate(110%);
+    }
+    .hero::after{
+      content: ""; position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat;
+      opacity: .18; mix-blend: overlay;
+    }
+    @keyframes grad{0%{background-position: 0 50%;} 50%{background-position: 100% 50%;} 100%{background-position: 0 50%;}}
+    .hero-inner{position: relative; z-index: 1; max-width: 900px; padding: 3.5rem 1.5rem;} /* Más padding */
+    .kicker{letter-spacing: .2em; text-transform: uppercase; opacity: .9; font-weight: 700;}
+    .hero h1{font-size: clamp(2rem, 5vw, 3.6rem); margin: .8rem 0 1.2rem; text-shadow: 0 5px 30px rgba(0,0,0,.35);}
+    .hero p{font-size: clamp(1rem, 2.6vw, 1.25rem); opacity: .98;}
+    .cta{margin-top: 1.8rem; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;}
+    .btn{
+      border: none; border-radius: 999px; padding: 14px 20px; font-weight: 700; cursor: pointer;
+      transition: .25s; display: inline-flex; align-items: center; gap: 10px;
+    }
+    .btn.primary{background: #fff; color: var(--primary);}
+    .btn.primary:hover{transform: translateY(-2px); box-shadow: 0 12px 28px rgba(255,255,255,.25);}
+    .btn.ghost{background: transparent; color: #fff; border: 2px solid #fff;}
+    .btn.ghost:hover{background: #fff; color: var(--primary);}
 
-.hero {
-  min-height:100vh;
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
-  background: linear-gradient(to right, #ee0979, #ff6a00);
-  color:#fff; text-align:center; padding:0 20px;
-}
-.hero h1 { font-size:3rem; margin-bottom:1rem; animation: fadeInDown 1s ease forwards; }
-.hero p { font-size:1.2rem; margin-bottom:2rem; animation: fadeIn 2s ease forwards; }
-.hero button { background: #fff; color: var(--primary-color); padding:0.8rem 1.5rem; border:none; border-radius:50px; font-weight:600; transition:0.3s; }
-.hero button:hover { background: var(--secondary-color); color:#fff; }
+    main{max-width: var(--maxw); margin: auto; padding: 2.5rem 1.2rem;} /* Más padding */
 
-@keyframes fadeInDown {
-  0% { opacity:0; transform:translateY(-50px);}
-  100% { opacity:1; transform:translateY(0);}
-}
-@keyframes fadeIn {
-  0% { opacity:0;}
-  100% { opacity:1;}
-}
+    /* SECTIONS */
+    section{margin: clamp(2.5rem, 5vw, 4.5rem) 0;} /* Más margen */
+    .section-head{display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 1.5rem; flex-wrap: wrap;}
+    .section-head h2{margin: 0; font-size: clamp(1.4rem, 2.5vw, 2rem);}
+    .muted{color: var(--muted); font-weight: 500;}
 
-/* Menú flotante (idioma y tema) */
-.floating-menu {
-  position:fixed; bottom:20px; right:20px; display:flex; flex-direction:column; gap:10px; z-index:1000;
-}
-.floating-menu button {
-  padding:0.6rem 0.8rem; border:none; border-radius:50px; background: var(--primary-color); color:#fff;
-  font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.3); transition:0.3s;
-}
-.floating-menu button:hover { background: var(--secondary-color); }
+    .grid{display: grid; gap: 20px;}
+    .grid.cols-3{grid-template-columns: repeat(3, 1fr);}
+    .grid.cols-2{grid-template-columns: repeat(2, 1fr);}
+    .card{
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden; transition: transform .25s ease, border-color .25s ease;
+    }
+    .card:hover{transform: translateY(-4px); border-color: color-mix(in hsl, var(--primary) 25%, var(--line));}
+    .card-body{padding: 20px;} /* Más padding */
+    .pill{display: inline-flex; gap: 10px; align-items: center; padding: 8px 12px; border-radius: 999px; font-size: .85rem; background: color-mix(in hsl, var(--primary) 10%, transparent); color: var(--primary); font-weight: 700;}
+    .list{margin: 12px 0 0; padding: 0 0 0 20px;}
+    .list li{margin: .4rem 0;}
 
-/* WhatsApp flotante */
-.whatsapp {
-  position:fixed; bottom:20px; left:20px; background:#25d366; color:#fff; padding:0.8rem 1rem; border-radius:50px;
-  display:flex; align-items:center; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:1000;
-  transition:0.3s;
-}
-.whatsapp:hover { background:#1ebe57; }
+    /* PRICING */
+    .price{font-size: 1.4rem; font-weight: 800;}
+    .price small{font-size: .85rem; color: var(--muted); font-weight: 600;}
 
-@media (max-width:768px){
-  header { flex-direction:column; align-items:flex-start; padding:1rem;}
-  header nav { margin-top:0.5rem; }
-  .hero h1 { font-size:2.2rem; }
-  .hero p { font-size:1rem; }
-}
-</style>
+    /* PORTFOLIO */
+    .pf-thumb{aspect-ratio: 16/10; object-fit: cover; width: 100%;}
+    .tag{display: inline-block; padding: 8px 12px; border: 1px dashed var(--line); border-radius: 10px; font-size: .8rem; margin-right: 8px; color: var(--muted);}
+
+    /* TESTIMONIOS */
+    .testimonial{display: flex; gap: 16px; align-items: flex-start;}
+    .avatar{width: 52px; height: 52px; border-radius: 50%; object-fit: cover;}
+
+    /* FAQ */
+    details{background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px;}
+    summary{cursor: pointer; font-weight: 700;}
+    details + details{margin-top: 12px;}
+
+    /* FORMULARIOS */
+    form{display: grid; gap: 14px;}
+    .row{display: grid; gap: 14px;}
+    .row.cols-2{grid-template-columns: repeat(2, 1fr);}
+    input, select, textarea{
+      width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line);
+      background: color-mix(in hsl, var(--card) 96%, transparent); color: var(--text); font: inherit;
+    }
+    textarea{min-height: 120px; resize: vertical;}
+    input:focus, select:focus, textarea:focus{outline: 2px solid color-mix(in hsl, var(--primary) 30%, transparent);}
+    .form-note{font-size: .9rem; color: var(--muted);}
+
+    /* FOOTER */
+    footer{margin-top: 4.5rem; background: linear-gradient(90deg, var(--primary), var(--secondary)); color: #fff;}
+    .footer-inner{max-width: var(--maxw); margin: auto; padding: 2.5rem 1.2rem; display: grid; gap: 20px; align-items: center; justify-content: space-between;}
+    .foot-grid{display: grid; gap: 14px;}
+    .foot-meta{opacity: .9;}
+
+    /* WhatsApp */
+    .whatsapp{
+      position: fixed; right: 20px; bottom: 90px; z-index: 60; width: 60px; height: 60px; border-radius: 50%;
+      display: grid; place-items: center; background: #25d366; color: #fff; text-decoration: none; font-size: 26px; box-shadow: var(--shadow);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px){
+      .grid.cols-3{grid-template-columns: repeat(2, 1fr);}
+    }
+    @media (max-width: 760px){
+      .nav-links{display: none;}
+      .burger{display: block;}
+      .nav-open .nav-links{
+        display: grid; grid-template-columns: 1fr; position: absolute; left: 0; right: 0; top: 56px; gap: 0;
+        background: var(--card); border-bottom: 1px solid var(--line);
+      }
+      .nav-open .nav-links a{padding: 16px 18px; border-radius: 0; border-bottom: 1px solid var(--line);}
+      .grid.cols-3, .grid.cols-2, .row.cols-2{grid-template-columns: 1fr;}
+      .dock{inset: auto 16px 16px auto;}
+      .whatsapp{bottom: 84px; right: 16px;}
+      .hero{min-height: 78vh;}
+    }
+
+    /* AOS mini (fade/slide) */
+    [data-anim]{opacity: 0; transform: translateY(14px); transition: all .6s ease;}
+    [data-anim].in{opacity: 1; transform: none;}
+  </style>
 </head>
-
 <body>
-
-<header>
-  <div class="logo">The Galvis Edit</div>
-  <nav>
-    <a href="#about">Sobre mí</a>
-    <a href="#services">Servicios</a>
-    <a href="#pricing">Precios</a>
-    <a href="#booking">Agenda</a>
-    <a href="#contact">Contacto</a>
+  <!-- NAV -->
+  <nav id="topnav">
+    <div class="nav-wrap">
+      <div class="brand">
+        <div class="brand-badge"><i class="fa-solid fa-star"></i></div>
+        <span>The Galvis Edit</span>
+      </div>
+      <button class="burger" id="burger" aria-label="Abrir menú"><i class="fa-solid fa-bars"></i></button>
+      <div class="nav-links" id="navlinks">
+        <a href="#about" data-i18n="nav.about">Sobre mí</a>
+        <a href="#services" data-i18n="nav.services">Servicios</a>
+        <a href="#portfolio" data-i18n="nav.portfolio">Portafolio</a>
+        <a href="#pricing" data-i18n="nav.pricing">Precios</a>
+        <a href="#booking" data-i18n="nav.booking">Agenda</a>
+        <a href="#faq" data-i18n="nav.faq">Preguntas</a>
+        <a href="#contact" data-i18n="nav.contact">Contacto</a>
+      </div>
+    </div>
   </nav>
-</header>
 
-<section class="hero">
-  <h1>Transformo tus ideas en contenido impactante</h1>
-  <p>Creación de videos, reels, fotos y estrategias de contenido para que tu marca destaque en redes sociales.</p>
-  <button onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'});">Contáctame</button>
-</section>
-
-<!-- Menú flotante de idioma y tema -->
-<div class="floating-menu">
-  <button onclick="toggleTheme()">Tema</button>
-  <button onclick="switchLang()">EN/ES</button>
-</div>
-
-<!-- WhatsApp flotante -->
-<a class="whatsapp" href="https://wa.me/15615671778" target="_blank">WhatsApp</a>
-
-<script>
-/* Estado global */
-let state = { lang:'es', theme:'light' };
-
-/* Función cambiar idioma */
-function switchLang(){
-  state.lang = state.lang==='es'?'en':'es';
-  applyI18N();
-}
-
-/* Función cambiar tema */
-function toggleTheme(){
-  state.theme = state.theme==='light'?'dark':'light';
-  applyTheme();
-}
-
-function applyTheme(){
-  if(state.theme==='dark'){
-    document.body.style.background='#111';
-    document.body.style.color='#eee';
-  }else{
-    document.body.style.background='#f5f5f5';
-    document.body.style.color='#333';
-  }
-}
-
-/* Traducciones básicas */
-function applyI18N(){
-  if(state.lang==='es'){
-    document.querySelector('.hero h1').textContent='Transformo tus ideas en contenido impactante';
-    document.querySelector('.hero p').textContent='Creación de videos, reels, fotos y estrategias de contenido para que tu marca destaque en redes sociales.';
-    document.querySelector('.hero button').textContent='Contáctame';
-  }else{
-    document.querySelector('.hero h1').textContent='I transform your ideas into impactful content';
-    document.querySelector('.hero p').textContent='Video, reels, photography and content strategies to make your brand stand out on social media.';
-    document.querySelector('.hero button').textContent='Contact me';
-  }
-}
-
-/* Inicialización */
-applyTheme();
-applyI18N();
-</script>
-<!-- Sobre mí -->
-<section id="about">
-  <h2 style="text-align:center; margin-bottom:2rem;">Sobre mí</h2>
-  <div style="display:flex; flex-wrap:wrap; gap:2rem; justify-content:center; align-items:center;">
-    <img src="https://via.placeholder.com/300x300" alt="Foto de Galvis" style="border-radius:50%; width:300px; height:300px; object-fit:cover;">
-    <div style="max-width:600px;">
-      <p>Soy Galvis, creador de contenido profesional con más de 5 años de experiencia en redes sociales, marketing digital y producción audiovisual. Mi objetivo es ayudarte a que tu marca destaque y conecte con tu audiencia a través de contenido auténtico, creativo y de alto impacto.</p>
-      <p>Trabajo con empresas, influencers y emprendedores ofreciendo soluciones personalizadas, desde la planificación hasta la entrega final de cada proyecto.</p>
+  <!-- FLOATING DOCK -->
+  <div class="dock" aria-label="Preferencias">
+    <div class="row">
+      <button class="chip" id="themeToggle"><i class="fa-solid fa-moon"></i><span data-i18n="ui.dark">Oscuro</span></button>
+      <button class="chip" id="themeLight"><i class="fa-solid fa-sun"></i><span data-i18n="ui.light">Claro</span></button>
+    </div>
+    <div class="row">
+      <button class="chip" id="langES"><span class="flag">🇪🇸</span> ES</button>
+      <button class="chip" id="langEN"><span class="flag">🇺🇸</span> EN</button>
     </div>
   </div>
-</section>
 
-<!-- Servicios -->
-<section id="services" style="background:#fff; padding:80px 20px;">
-  <h2 style="text-align:center; margin-bottom:2rem;">Servicios</h2>
-  <div style="display:flex; flex-wrap:wrap; gap:2rem; justify-content:center;">
-    <div style="background:var(--card-bg); border-radius:15px; padding:20px; width:300px; box-shadow:0 4px 10px rgba(0,0,0,0.1); text-align:center;">
-      <img src="https://via.placeholder.com/250x150" alt="Reels y Videos" style="width:100%; border-radius:10px;">
-      <h3>Reels y Videos</h3>
-      <p>Producción de videos atractivos para redes sociales, desde la idea hasta la edición final, optimizados para engagement y alcance.</p>
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-inner" data-anim>
+      <div class="kicker" data-i18n="hero.kicker">CREADOR DE CONTENIDO</div>
+      <h1 data-i18n="hero.title">Historias que venden y emocionan</h1>
+      <p data-i18n="hero.subtitle">Video, fotografía y estrategia para que tu marca crezca con contenido auténtico y resultados reales.</p>
+      <div class="cta">
+        <a href="#pricing" class="btn primary"><i class="fa-solid fa-bolt"></i><span data-i18n="cta.prices">Obtener precios</span></a>
+        <a href="#portfolio" class="btn ghost"><i class="fa-solid fa-play"></i><span data-i18n="cta.reel">Ver portafolio</span></a>
+      </div>
     </div>
-    <div style="background:var(--card-bg); border-radius:15px; padding:20px; width:300px; box-shadow:0 4px 10px rgba(0,0,0,0.1); text-align:center;">
-      <img src="https://via.placeholder.com/250x150" alt="Fotografía profesional" style="width:100%; border-radius:10px;">
-      <h3>Fotografía profesional</h3>
-      <p>Captura de imágenes de alta calidad para productos, eventos o personal branding, adaptadas a tu estilo y necesidades.</p>
-    </div>
-    <div style="background:var(--card-bg); border-radius:15px; padding:20px; width:300px; box-shadow:0 4px 10px rgba(0,0,0,0.1); text-align:center;">
-      <img src="https://via.placeholder.com/250x150" alt="Estrategia de contenido" style="width:100%; border-radius:10px;">
-      <h3>Estrategia de contenido</h3>
-      <p>Planificación de contenido para redes sociales, calendarios editoriales y asesoría en crecimiento orgánico y engagement.</p>
-    </div>
-  </div>
-</section>
+  </header>
 
-<!-- Precios / Cotización -->
-<section id="pricing" style="padding:80px 20px; background: linear-gradient(to right, #ee0979, #ff6a00); color:#fff;">
-  <h2 style="text-align:center; margin-bottom:2rem;">Obtener precios y estimados</h2>
-  <p style="text-align:center; max-width:800px; margin:0 auto 2rem;">
-    Rellena el siguiente formulario para recibir un presupuesto personalizado según tus necesidades de contenido.
-  </p>
-  <div style="max-width:600px; margin:0 auto;">
-    <form id="quoteForm">
-      <input type="text" name="name" placeholder="Tu nombre" required style="width:100%; padding:0.8rem; margin-bottom:1rem; border-radius:10px; border:none;">
-      <input type="email" name="email" placeholder="Tu correo" required style="width:100%; padding:0.8rem; margin-bottom:1rem; border-radius:10px; border:none;">
-      <textarea name="details" placeholder="Cuéntanos tu proyecto" required style="width:100%; padding:0.8rem; margin-bottom:1rem; border-radius:10px; border:none; min-height:100px;"></textarea>
-      <button type="submit" style="width:100%; padding:0.8rem; border:none; border-radius:50px; background:#fff; color:var(--primary-color); font-weight:600;">Solicitar presupuesto</button>
-    </form>
-  </div>
-</section>
+  <main>
+    <!-- SOBRE MÍ -->
+    <section id="about">
+      <div class="section-head">
+        <h2 data-i18n="about.title">Sobre mí</h2>
+        <span class="muted" data-i18n="about.kicker">Video · Foto · Estrategia</span>
+      </div>
+      <div class="grid cols-2">
+        <div class="card" data-anim>
+          <img src="https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?q=80&w=1200&auto=format&fit=crop" alt="Creador grabando" loading="lazy"/>
+          <div class="card-body">
+            <p data-i18n="about.p1">
+              Soy Santiago Galvis. Produzco piezas que conectan: desde videos de marca y eventos hasta campañas para redes. Mi enfoque es creativo, estratégico y orientado a resultados.
+            </p>
+            <ul class="list">
+              <li data-i18n="about.li1">+350 videos entregados</li>
+              <li data-i18n="about.li2">Clientes en fitness, bodas, restaurantes y startups</li>
+              <li data-i18n="about.li3">Contenido optimizado para Instagram, TikTok y YouTube</li>
+            </ul>
+          </div>
+        </div>
+        <div class="grid" style="gap: 20px;">
+          <div class="card" data-anim>
+            <div class="card-body">
+              <span class="pill"><i class="fa-solid fa-bolt"></i><span data-i18n="about.badge1">Proceso ágil</span></span>
+              <p data-i18n="about.p2" style="margin: .8rem 0 0;">
+                Planificamos, grabamos y editamos con un flujo claro que reduce tiempos y eleva la calidad.
+              </p>
+            </div>
+          </div>
+          <div class="card" data-anim>
+            <div class="card-body">
+              <span class="pill"><i class="fa-solid fa-chart-line"></i><span data-i18n="about.badge2">Estrategia + Creatividad</span></span>
+              <p data-i18n="about.p3" style="margin: .8rem 0 0;">
+                Cada pieza tiene un objetivo: más alcance, más leads o más ventas. Medimos y optimizamos.
+              </p>
+            </div>
+          </div>
+          <div class="card" data-anim>
+            <div class="card-body">
+              <span class="pill"><i class="fa-solid fa-heart"></i><span data-i18n="about.badge3">Experiencias memorables</span></span>
+              <p data-i18n="about.p4" style="margin: .8rem 0 0;">
+                Historias reales, gente real. Hacemos que tu marca se sienta cercana y con propósito.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<!-- Agenda de citas / Consulta -->
-<section id="booking" style="padding:80px 20px; background:#fff;">
-  <h2 style="text-align:center; margin-bottom:2rem;">Crear una agenda o consulta</h2>
-  <p style="text-align:center; max-width:800px; margin:0 auto 2rem;">Selecciona un día y hora para agendar tu consulta personalizada conmigo.</p>
-  <div style="max-width:600px; margin:0 auto;">
-    <form id="bookingForm">
-      <input type="text" name="name" placeholder="Tu nombre" required style="width:100%; padding:0.8rem; margin-bottom:1rem; border-radius:10px; border:none;">
-      <input type="email" name="email" placeholder="Tu correo" required style="width:100%; padding:0.8rem; margin-bottom:1rem; border-radius:10px; border:none;">
-      <input type="date" name="date" required style="width:100%; padding:0.8rem; margin-bottom:1rem; border-radius:10px; border:none;">
-      <input type="time" name="time" required style="width:100%; padding:0.8rem; margin-bottom:1rem; border-radius:10px; border:none;">
-      <button type="submit" style="width:100%; padding:0.8rem; border:none; border-radius:50px; background:var(--primary-color); color:#fff; font-weight:600;">Agendar cita</button>
-    </form>
-  </div>
-</section>
+    <!-- SERVICIOS -->
+    <section id="services">
+      <div class="section-head">
+        <h2 data-i18n="services.title">Servicios</h2>
+        <span class="muted" data-i18n="services.kicker">Soluciones a tu medida</span>
+      </div>
+      <div class="grid cols-3">
+        <div class="card" data-anim>
+          <img src="https://images.unsplash.com/photo-1498601761256-4f56a6381e86?q=80&w=1200&auto=format&fit=crop" alt="Bodas" class="pf-thumb" loading="lazy"/>
+          <div class="card-body">
+            <h3>Wedding Films</h3>
+            <p data-i18n="services.wedding">Cubrimos tu boda con cine, audio profesional y edición emotiva.</p>
+            <span class="tag">4K</span><span class="tag" data-i18n="services.tag.delivery">Entrega digital</span>
+          </div>
+        </div>
+        <div class="card" data-anim>
+          <img src="https://images.unsplash.com/photo-1558611848-73f7eb4001a1?q=80&w=1200&auto=format&fit=crop" alt="Fitness" class="pf-thumb" loading="lazy"/>
+          <div class="card-body">
+            <h3>Fitness & Gyms</h3>
+            <p data-i18n="services.fitness">Campañas energéticas para captar miembros y retener comunidad.</p>
+            <span class="tag">UGC</span><span class="tag">Reels</span>
+          </div>
+        </div>
+        <div class="card" data-anim>
+          <img src="https://images.unsplash.com/photo-1557800636-894a64c1696f?q=80&w=1200&auto=format&fit=crop" alt="Negocios" class="pf-thumb" loading="lazy"/>
+          <div class="card-body">
+            <h3>Marcas & Negocios</h3>
+            <p data-i18n="services.brand">Videos de producto, testimonios y anuncios listos para pauta.</p>
+            <span class="tag">Ads</span><span class="tag">YouTube</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<!-- Testimonios / Portafolio -->
-<section id="testimonials" style="padding:80px 20px; background: linear-gradient(to right, #ff6a00, #ee0979); color:#fff;">
-  <h2 style="text-align:center; margin-bottom:2rem;">Testimonios</h2>
-  <div style="display:flex; flex-wrap:wrap; gap:2rem; justify-content:center;">
-    <div style="background:rgba(255,255,255,0.1); border-radius:15px; padding:20px; width:300px; text-align:center;">
-      <p>"Trabajar con Galvis ha sido increíble. Nuestro contenido creció y conectamos mejor con nuestra audiencia."</p>
-      <strong>- Cliente A</strong>
-    </div>
-    <div style="background:rgba(255,255,255,0.1); border-radius:15px; padding:20px; width:300px; text-align:center;">
-      <p>"Videos y fotos de alta calidad, creativos y profesionales. Muy recomendado."</p>
-      <strong>- Cliente B</strong>
-    </div>
-    <div style="background:rgba(255,255,255,0.1); border-radius:15px; padding:20px; width:300px; text-align:center;">
-      <p>"La estrategia de contenido que nos propuso nos ayudó a duplicar nuestro engagement en redes sociales."</p>
-      <strong>- Cliente C</strong>
-    </div>
-  </div>
-</section>
+    <!-- PORTAFOLIO -->
+    <section id="portfolio">
+      <div class="section-head">
+        <h2 data-i18n="portfolio.title">Portafolio</h2>
+        <span class="muted" data-i18n="portfolio.kicker">Proyectos recientes</span>
+      </div>
+      <div class="grid cols-3">
+        <div class="card" data-anim>
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" alt="Boda" class="pf-thumb" loading="lazy"/>
+          <div class="card-body"><strong>Wedding Magic</strong><p class="muted">Film & Photo</p></div>
+        </div>
+        <div class="card" data-anim>
+          <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1200&auto=format&fit=crop" alt="Gym" class="pf-thumb" loading="lazy"/>
+          <div class="card-body"><strong>Gym Launch</strong><p class="muted">Campaña social</p></div>
+        </div>
+        <div class="card" data-anim>
+          <img src="https://images.unsplash.com/photo-1556740749-887f6717d7e4?q=80&w=1200&auto=format&fit=crop" alt="Restaurante" class="pf-thumb" loading="lazy"/>
+          <div class="card-body"><strong>Food Story</strong><p class="muted">Brand video</p></div>
+        </div>
+      </div>
+    </section>
 
-<script>
-/* Formularios dinámicos (por ahora alerta, luego se conectará al correo) */
-document.getElementById('quoteForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  alert('¡Gracias! Tu solicitud de presupuesto ha sido enviada.');
-  this.reset();
-});
-document.getElementById('bookingForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  alert('¡Perfecto! Tu cita ha sido agendada.');
-  this.reset();
-});
-</script>
+    <!-- PRECIOS / ESTIMADOS -->
+    <section id="pricing">
+      <div class="section-head">
+        <h2 data-i18n="pricing.title">Precios & Estimados</h2>
+        <span class="muted" data-i18n="pricing.kicker">Cotiza en minutos</span>
+      </div>
+      <div class="grid cols-2">
+        <div class="card" data-anim>
+          <div class="card-body">
+            <h3>Paquetes</h3>
+            <ul class="list">
+              <li><span class="price">$350</span> <small data-i18n="pricing.p1">Mini sesión (1h) · 10 fotos editadas · 1 reel</small></li>
+              <li><span class="price">$890</span> <small data-i18n="pricing.p2">Evento (4h) · Highlights · 30 fotos · 2 reels</small></li>
+              <li><span class="price">$1,600</span> <small data-i18n="pricing.p3">Brand day · Guion · 3 videos · 40 fotos</small></li>
+            </ul>
+            <p class="form-note" data-i18n="pricing.note">*Precios de referencia. Envíame tu idea y te respondo con un estimado exacto.</p>
+          </div>
+        </div>
+        <div class="card" data-anim>
+          <div class="card-body">
+            <h3 data-i18n="pricing.formTitle">Obtener un estimado</h3>
+            <form id="quoteForm">
+              <div class="row cols-2">
+                <input name="name" placeholder="Nombre" required />
+                <input type="email" name="email" placeholder="Correo" required />
+              </div>
+              <div class="row cols-2">
+                <select name="service" required>
+                  <option value="" disabled selected data-i18n="pricing.sel0">Selecciona un servicio</option>
+                  <option>Wedding Film</option>
+                  <option>Evento/Corporativo</option>
+                  <option>Fitness/Gym</option>
+                  <option>Marca/Producto</option>
+                  <option>Fotos Profesionales</option>
+                </select>
+                <input type="tel" name="phone" placeholder="Teléfono" />
+              </div>
+              <textarea name="details" placeholder="Cuéntame tu idea, locación, duración..."></textarea>
+              <button class="btn primary" type="submit"><i class="fa-solid fa-paper-plane"></i> <span data-i18n="pricing.send">Solicitar estimado</span></button>
+              <div class="form-note" id="quoteMsg"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENDA / CONSULTA -->
+    <section id="booking">
+      <div class="section-head">
+        <h2 data-i18n="booking.title">Agenda una consulta</h2>
+        <span class="muted" data-i18n="booking.kicker">Reserva fecha y hora</span>
+      </div>
+      <div class="grid cols-2">
+        <div class="card" data-anim>
+          <div class="card-body">
+            <h3 data-i18n="booking.formTitle">Reservar</h3>
+            <form id="bookingForm">
+              <div class="row cols-2">
+                <input name="name" placeholder="Nombre" required />
+                <input type="email" name="email" placeholder="Correo" required />
+              </div>
+              <div class="row cols-2">
+                <input type="date" name="date" required />
+                <input type="time" name="time" required />
+              </div>
+              <select name="service">
+                <option value="" disabled selected data-i18n="booking.sel0">¿Qué necesitas?</option>
+                <option>Reunión breve (30m)</option>
+                <option>Consulta completa (60m)</option>
+                <option>Visita de locación</option>
+              </select>
+              <textarea name="notes" placeholder="Notas (opcional)"></textarea>
+              <div class="row cols-2">
+                <button class="btn primary" type="submit"><i class="fa-solid fa-calendar-check"></i> <span data-i18n="booking.book">Agendar</span></button>
+                <button class="btn" type="button" id="icsBtn"><i class="fa-solid fa-file-arrow-down"></i> <span data-i18n="booking.ics">Añadir a calendario</span></button>
+              </div>
+              <div class="form-note" id="bookingMsg"></div>
+            </form>
+          </div>
+        </div>
+        <div class="card" data-anim>
+          <img src="https://images.unsplash.com/photo-1511447333015-45b65e60f6d5?q=80&w=1200&auto=format&fit=crop" alt="Planificación" loading="lazy"/>
+          <div class="card-body">
+            <p data-i18n="booking.info">
+              Confirmo por correo con enlace de videollamada si es virtual, o detalles de locación si es presencial.
+            </p>
+            <p class="muted" data-i18n="booking.info2">Cambios de fecha sin costo con 48h de anticipación.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PREGUNTAS FRECUENTES -->
+    <section id="faq">
+      <div class="section-head">
+        <h2 data-i18n="faq.title">Preguntas frecuentes</h2>
+        <span class="muted" data-i18n="faq.kicker">Lo que más me consultan</span>
+      </div>
+      <details data-anim>
+        <summary data-i18n="faq.q1">¿Cuánto tardan las entregas?</summary>
+        <p data-i18n="faq.a1">Entre 3 y 10 días según el proyecto. En campañas, trabajamos por sprints semanales.</p>
+      </details>
+      <details data-anim>
+        <summary data-i18n="faq.q2">¿Trabajas fuera de la ciudad?</summary>
+        <p data-i18n="faq.a2">Sí, cubro viajes. Se cotiza transporte y viáticos según distancia y agenda.</p>
+      </details>
+      <details data-anim>
+        <summary data-i18n="faq.q3">¿Entregas material editable?</summary>
+        <p data-i18n="faq.a3">Por defecto entrego finales en alta calidad. Archivos editables bajo acuerdo previo.</p>
+      </details>
+    </section>
+
+    <!-- CONTACTO -->
+    <section id="contact">
+      <div class="section-head">
+        <h2 data-i18n="contact.title">Contacto</h2>
+        <span class="muted" data-i18n="contact.kicker">¿Tienes dudas? Escríbeme</span>
+      </div>
+      <div class="grid cols-2">
+        <div class="card" data-anim>
+          <div class="card-body">
+            <form id="contactForm">
+              <div class="row cols-2">
+                <input name="name" placeholder="Nombre" required />
+                <input type="email" name="email" placeholder="Correo" required />
+              </div>
+              <input name="subject" placeholder="Asunto" required />
+              <textarea name="message" placeholder="Mensaje" required></textarea>
+              <button class="btn primary" type="submit"><i class="fa-solid fa-envelope"></i> <span data-i18n="contact.send">Enviar mensaje</span></button>
+              <div class="form-note" id="contactMsg"></div>
+            </form>
+          </div>
+        </div>
+        <div class="card" data-anim>
+          <div class="card-body">
+            <p><i class="fa-solid fa-location-dot"></i> Miami, FL</p>
+            <p><i class="fa-solid fa-phone"></i> <a href="tel:+15615671778">+1 (561) 567-1778</a></p>
+            <p><i class="fa-solid fa-at"></i> <a href="mailto:Thegalvisedit@gmail.com">Thegalvisedit@gmail.com</a></p>
+            <div class="cta" style="justify-content: flex-start; margin-top: 12px;">
+              <a class="btn" href="https://instagram.com/thegalvisedit" target="_blank"><i class="fa-brands fa-instagram"></i> Instagram</a>
+              <a class="btn" href="https://youtube.com/@thegalvisedit" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- WHATSAPP -->
+  <a href="https://wa.me/15615671778" class="whatsapp" aria-label="WhatsApp" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="foot-grid">
+        <div class="foot-meta">
+          © <span id="year"></span> The Galvis Edit · <span id="visits">—</span>
+        </div>
+        <div class="foot-meta">
+          <span id="datetime"></span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /*************** CONFIG ***************/
+    const FORMSPREE_ENDPOINT = "";
+    const MAIL_TO = "Thegalvisedit@gmail.com";
+    const COUNTAPI_URL = "https://api.countapi.xyz";
+    const COUNT_NS = "thegalvisedit.site";
+    const COUNT_KEY = "visitas";
+
+    /*************** I18N ***************/
+    const translations = {
+      es: {
+        "nav.about": "Sobre mí", "nav.services": "Servicios", "nav.portfolio": "Portafolio", "nav.pricing": "Precios", "nav.booking": "Agenda", "nav.faq": "Preguntas", "nav.contact": "Contacto",
+        "ui.dark": "Oscuro", "ui.light": "Claro",
+        "hero.kicker": "CREADOR DE CONTENIDO", "hero.title": "Historias que venden y emocionan", "hero.subtitle": "Video, fotografía y estrategia para que tu marca crezca con contenido auténtico y resultados reales.",
+        "cta.prices": "Obtener precios", "cta.reel": "Ver portafolio",
+        "about.title": "Sobre mí", "about.kicker": "Video · Foto · Estrategia", "about.p1": "Soy Santiago Galvis. Produzco piezas que conectan: desde videos de marca y eventos hasta campañas para redes. Mi enfoque es creativo, estratégico y orientado a resultados.",
+        "about.li1": "+350 videos entregados", "about.li2": "Clientes en fitness, bodas, restaurantes y startups", "about.li3": "Contenido optimizado para Instagram, TikTok y YouTube",
+        "about.badge1": "Proceso ágil", "about.p2": "Planificamos, grabamos y editamos con un flujo claro que reduce tiempos y eleva la calidad.",
+        "about.badge2": "Estrategia + Creatividad", "about.p3": "Cada pieza tiene un objetivo: más alcance, más leads o más ventas. Medimos y optimizamos.",
+        "about.badge3": "Experiencias memorables", "about.p4": "Historias reales, gente real. Hacemos que tu marca se sienta cercana y con propósito.",
+        "services.title": "Servicios", "services.kicker": "Soluciones a tu medida", "services.wedding": "Cubrimos tu boda con cine, audio profesional y edición emotiva.", "services.fitness": "Campañas energéticas para captar miembros y retener comunidad.", "services.brand": "Videos de producto, testimonios y anuncios listos para pauta.", "services.tag.delivery": "Entrega digital",
+        "portfolio.title": "Portafolio", "portfolio.kicker": "Proyectos recientes",
+        "pricing.title": "Precios & Estimados", "pricing.kicker": "Cotiza en minutos",
+        "pricing.p1": "Mini sesión (1h) · 10 fotos editadas · 1 reel", "pricing.p2": "Evento (4h) · Highlights · 30 fotos · 2 reels", "pricing.p3": "Brand day · Guion · 3 videos · 40 fotos",
+        "pricing.note": "*Precios de referencia. Envíame tu idea y te respondo con un estimado exacto.",
+        "pricing.formTitle": "Obtener un estimado", "pricing.send": "Solicitar estimado", "pricing.sel0": "Selecciona un servicio",
+        "booking.title": "Agenda una consulta", "booking.kicker": "Reserva fecha y hora", "booking.formTitle": "Reservar", "booking.sel0": "¿Qué necesitas?", "booking.book": "Agendar", "booking.ics": "Añadir a calendario",
+        "booking.info": "Confirmo por correo con enlace de videollamada si es virtual, o detalles de locación si es presencial.",
+        "booking.info2": "Cambios de fecha sin costo con 48h de anticipación.",
+        "faq.title": "Preguntas frecuentes", "faq.kicker": "Lo que más me consultan",
+        "faq.q1": "¿Cuánto tardan las entregas?", "faq.a1": "Entre 3 y 10 días según el proyecto. En campañas, trabajamos por sprints semanales.",
+        "faq.q2": "¿Trabajas fuera de la ciudad?", "faq.a2": "Sí, cubro viajes. Se cotiza transporte y viáticos según distancia y agenda.",
+        "faq.q3": "¿Entregas material editable?", "faq.a3": "Por defecto entrego finales en alta calidad. Archivos editables bajo acuerdo previo.",
+        "contact.title": "Contacto", "contact.kicker": "¿Tienes dudas? Escríbeme", "contact.send": "Enviar mensaje"
+      },
+      en: {
+        "nav.about": "About", "nav.services": "Services", "nav.portfolio": "Portfolio", "nav.pricing": "Pricing", "nav.booking": "Booking", "nav.faq": "FAQ", "nav.contact": "Contact",
+        "ui.dark": "Dark", "ui.light": "Light",
+        "hero.kicker": "CONTENT CREATOR", "hero.title": "Stories that sell and move people", "hero.subtitle": "Video, photography and strategy so your brand grows with authentic content and real results.",
+        "cta.prices": "Get pricing", "cta.reel": "See portfolio",
+        "about.title": "About me", "about.kicker": "Video · Photo · Strategy", "about.p1": "I'm Santiago Galvis. I produce pieces that connect—from brand & event videos to social campaigns. Creative, strategic and results-driven.",
+        "about.li1": "+350 videos delivered", "about.li2": "Clients in fitness, weddings, restaurants & startups", "about.li3": "Content optimized for Instagram, TikTok & YouTube",
+        "about.badge1": "Agile process", "about.p2": "We plan, shoot and edit with a clear flow that reduces time and boosts quality.",
+        "about.badge2": "Strategy + Creativity", "about.p3": "Every piece has a goal: reach, leads or sales. We measure and optimize.",
+        "about.badge3": "Memorable experiences", "about.p4": "Real stories, real people. We make your brand feel close and purposeful.",
+        "services.title": "Services", "services.kicker": "Tailored solutions", "services.wedding": "We film your wedding with cinema look, pro audio and emotional editing.", "services.fitness": "High-energy campaigns to attract members and keep your community engaged.", "services.brand": "Product videos, testimonials and ads ready for media buying.", "services.tag.delivery": "Digital delivery",
+        "portfolio.title": "Portfolio", "portfolio.kicker": "Recent projects",
+        "pricing.title": "Pricing & Estimates", "pricing.kicker": "Quote in minutes",
+        "pricing.p1": "Mini session (1h) · 10 edited photos · 1 reel", "pricing.p2": "Event (4h) · Highlights · 30 photos · 2 reels", "pricing.p3": "Brand day · Script · 3 videos · 40 photos",
+        "pricing.note": "*Reference prices. Send your idea and I’ll reply with a precise estimate.",
+        "pricing.formTitle": "Get an estimate", "pricing.send": "Request estimate", "pricing.sel0": "Choose a service",
+        "booking.title": "Book a consultation", "booking.kicker": "Pick date & time", "booking.formTitle": "Book", "booking.sel0": "What do you need?", "booking.book": "Book", "booking.ics": "Add to calendar",
+        "booking.info": "I confirm by email with a video link if virtual, or location details if in person.",
+        "booking.info2": "Date changes free of charge with 48h notice.",
+        "faq.title": "Frequently asked questions", "faq.kicker": "Most common questions",
+        "faq.q1": "How long do deliveries take?", "faq.a1": "Between 3–10 days depending on scope. For campaigns, we work in weekly sprints.",
+        "faq.q2": "Do you work outside the city?", "faq.a2": "Yes, I travel. Transport and per diem are quoted according to distance and schedule.",
+        "faq.q3": "Do you deliver editable files?", "faq.a3": "By default I deliver final masters. Project files upon prior agreement.",
+        "contact.title": "Contact", "contact.kicker": "Questions? Write me", "contact.send": "Send message"
+      }
+    };
+
+    /*************** STATE (persistencia) ***************/
+    const state = {
+      lang: localStorage.getItem('tge_lang') || 'es',
+      theme: localStorage.getItem('tge_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+    };
+
+    function applyTheme(){
+      if(state.theme === 'dark'){ document.body.classList.add('dark'); }
+      else{ document.body.classList.remove('dark'); }
+      localStorage.setItem('tge_theme', state.theme);
+      document.getElementById('themeToggle').classList.toggle('active', state.theme === 'dark');
+      document.getElementById('themeLight').classList.toggle('active', state.theme === 'light');
+    }
+
+    function t(key){
+      const pack = translations[state.lang] || translations.es;
+      return pack[key] || translations.es[key] || key;
+    }
+    function applyI18N(){
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        const val = t(k);
+        if(val) el.textContent = val;
+      });
+      localStorage.setItem('tge_lang', state.lang);
+      document.getElementById('langES').classList.toggle('active', state.lang === 'es');
+      document.getElementById('langEN').classList.toggle('active', state.lang === 'en');
+      document.documentElement.setAttribute('lang', state.lang);
+    }
+
+    /*************** NAV mobile ***************/
+    const burger = document.getElementById('burger');
+    const nav = document.getElementById('topnav');
+    burger?.addEventListener('click', () => nav.classList.toggle('nav-open'));
+
+    /*************** DOCK handlers ***************/
+    document.getElementById('themeToggle').addEventListener('click', () => { state.theme = 'dark'; applyTheme(); });
+    document.getElementById('themeLight').addEventListener('click', () => { state.theme = 'light'; applyTheme(); });
+    document.getElementById('langES').addEventListener('click', () => { state.lang = 'es'; applyI18N(); });
+    document.getElementById('langEN').addEventListener('click', () => { state.lang = 'en'; applyI18N(); });
+
+    /*************** AOS mini ***************/
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: .15 });
+    document.querySelectorAll('[data-anim]').forEach(el => io.observe(el));
+
+    /*************** Fecha/hora + año ***************/
+    function tick(){
+      const dt = new Date().toLocaleString(state.lang === 'es' ? 'es-ES' : 'en-US',
+        { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const el = document.getElementById('datetime'); if(el) el.textContent = dt;
+    }
+    document.getElementById('year').textContent = new Date().getFullYear();
+    setInterval(tick, 1000); tick();
+
+    /*************** CountAPI (visitas reales) ***************/
+    async function updateVisits(){
+      try{
+        await fetch(`${COUNTAPI_URL}/create?namespace=${COUNT_NS}&key=${COUNT_KEY}&value=0`, { method: 'GET' }).catch(() => {});
+        const res = await fetch(`${COUNTAPI_URL}/hit/${COUNT_NS}/${COUNT_KEY}`);
+        const data = await res.json();
+        document.getElementById('visits').textContent = (state.lang === 'es' ? 'Visitas: ' : 'Visits: ') + data.value.toLocaleString();
+      }catch(e){
+        document.getElementById('visits').textContent = (state.lang === 'es' ? 'Visitas: ' : 'Visits: ') + '—';
+      }
+    }
+    updateVisits();
+
+    /*************** Formularios: envío a correo ***************/
+    function toFormData(form){
+      const fd = new FormData(form);
+      return Object.fromEntries(fd.entries());
+    }
+    function mailtoFromData(subject, data){
+      const bodyLines = Object.entries(data).map(([k, v]) => `${k}: ${v}`).join('%0D%0A');
+      return `mailto:${MAIL_TO}?subject=${encodeURIComponent(subject)}&body=${bodyLines}`;
+    }
+    async function sendViaFormspree(payload){
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok) throw new Error('Formspree error');
+      return res.json();
+    }
+
+    // Quote form
+    document.getElementById('quoteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('quoteMsg'); msg.textContent = state.lang === 'es' ? 'Enviando...' : 'Sending...';
+      const data = toFormData(e.target); data.form = 'quote';
+      try{
+        if(FORMSPREE_ENDPOINT){
+          await sendViaFormspree(data);
+          msg.textContent = state.lang === 'es' ? '¡Listo! Te responderé muy pronto.' : 'Done! I will reply shortly.';
+          e.target.reset();
+        }else{
+          window.location.href = mailtoFromData('Estimado / Quote', data);
+          msg.textContent = state.lang === 'es' ? 'Abriendo tu app de correo...' : 'Opening your mail app...';
+        }
+      }catch(err){
+        msg.textContent = state.lang === 'es' ? 'Hubo un error, intenta de nuevo.' : 'Something went wrong, try again.';
+      }
+    });
+
+    // Booking form
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('bookingMsg'); msg.textContent = state.lang === 'es' ? 'Enviando...' : 'Sending...';
+      const data = toFormData(e.target); data.form = 'booking';
+      try{
+        if(FORMSPREE_ENDPOINT){
+          await sendViaFormspree(data);
+          msg.textContent = state.lang === 'es' ? 'Reserva enviada. Te confirmaré por correo.' : 'Booking sent. I will confirm by email.';
+          e.target.reset();
+        }else{
+          window.location.href = mailtoFromData('Reserva / Booking', data);
+          msg.textContent = state.lang === 'es' ? 'Abriendo tu app de correo...' : 'Opening your mail app...';
+        }
+      }catch(err){
+        msg.textContent = state.lang === 'es' ? 'Hubo un error, intenta de nuevo.' : 'Something went wrong, try again.';
+      }
+    });
+
+    // Contact form
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('contactMsg'); msg.textContent = state.lang === 'es' ? 'Enviando...' : 'Sending...';
+      const data = toFormData(e.target); data.form = 'contact';
+      try{
+        if(FORMSPREE_ENDPOINT){
+          await sendViaFormspree(data);
+          msg.textContent = state.lang === 'es' ? 'Mensaje enviado. ¡Gracias!' : 'Message sent. Thank you!';
+          e.target.reset();
+        }else{
+          window.location.href = mailtoFromData('Contacto / Contact', data);
+          msg.textContent = state.lang === 'es' ? 'Abriendo tu app de correo...' : 'Opening your mail app...';
+        }
+      }catch(err){
+        msg.textContent = state.lang === 'es' ? 'Hubo un error, intenta de nuevo.' : 'Something went wrong, try again.';
+      }
+    });
+
+    /*************** ICS (añadir a calendario) ***************/
+    document.getElementById('icsBtn').addEventListener('click', () => {
+      const form = document.getElementById('bookingForm');
+      const name = form.name.value || 'Consulta';
+      const date = form.date.value;
+      const time = form.time.value || '10:00';
+      if(!date){ alert(state.lang === 'es' ? 'Selecciona fecha' : 'Pick a date'); return; }
+      const start = new Date(`${date}T${time}:00`);
+      const end = new Date(start.getTime() + 60 * 60 * 1000);
+      function fmt(d){ return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'; }
+      const ics =
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//The Galvis Edit//Booking//ES
+BEGIN:VEVENT
+UID:${Date.now()}@thegalvisedit
+DTSTAMP:${fmt(new Date())}
+DTSTART:${fmt(start)}
+DTEND:${fmt(end)}
+SUMMARY:${name}
+DESCRIPTION:Reserva generada desde thegalvisedit.
+END:VEVENT
+END:VCALENDAR`;
+      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'reserva.ics'; document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    /*************** Init ***************/
+    applyTheme();
+    applyI18N();
+  </script>
+</body>
+</html>
