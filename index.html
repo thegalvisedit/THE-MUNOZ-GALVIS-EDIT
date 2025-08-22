@@ -1,211 +1,153 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Galvis Edit - Creador de Contenido</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* Reset y tipografía */
-    *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-    html,body{scroll-behavior:smooth;}
-    body{background:#1a1a1a;color:#fff;line-height:1.6;}
-    a{text-decoration:none;color:inherit;}
-    img{max-width:100%;height:auto;display:block;}
-    /* Contenedores */
-    .container{width:90%;max-width:1200px;margin:0 auto;padding:20px;}
-    header{display:flex;justify-content:space-between;align-items:center;padding:20px 0;}
-    header nav a{margin-left:20px;font-weight:600;transition:0.3s;}
-    header nav a:hover{color:#ee0979;}
-    .hero{height:90vh;background:linear-gradient(135deg,#ee0979,#ff6a00);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;}
-    .hero h1{font-size:3rem;margin-bottom:20px;}
-    .hero p{font-size:1.2rem;margin-bottom:30px;}
-    .btn{padding:10px 20px;background:#ff6a00;color:#fff;border:none;border-radius:5px;cursor:pointer;transition:0.3s;}
-    .btn:hover{background:#ee0979;}
-    section{padding:80px 0;}
-    h2{font-size:2rem;text-align:center;margin-bottom:40px;}
-    .grid{display:grid;gap:20px;}
-    .grid-3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr));}
-    .card{background:#2a2a2a;padding:20px;border-radius:10px;transition:0.3s;}
-    .card:hover{transform:translateY(-5px);}
-    form{display:flex;flex-direction:column;gap:15px;}
-    input,textarea,select{padding:10px;border-radius:5px;border:none;}
-    .message{color:#ff6a00;font-weight:600;}
-    .whatsapp{position:fixed;bottom:20px;right:20px;background:#25d366;color:#fff;border-radius:50%;padding:15px;font-size:24px;z-index:1000;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 15px rgba(0,0,0,0.3);}
-    footer{text-align:center;padding:20px;background:#111;margin-top:50px;}
-    @media(max-width:768px){.hero h1{font-size:2rem;}.hero p{font-size:1rem;}}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Galvis Edit - Creador de Contenido</title>
+
+<!-- Fuentes -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary-color: #ee0979;
+  --secondary-color: #ff6a00;
+  --bg-color: #f5f5f5;
+  --text-color: #333;
+  --card-bg: #fff;
+}
+
+* { box-sizing: border-box; margin:0; padding:0; font-family:'Poppins',sans-serif; }
+body { background: var(--bg-color); color: var(--text-color); line-height:1.6; }
+
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; }
+
+header {
+  position: fixed; top:0; left:0; width:100%; background: rgba(255,255,255,0.95); z-index:1000;
+  display:flex; justify-content:space-between; align-items:center; padding:1rem 2rem; box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+header .logo { font-weight:700; font-size:1.5rem; color: var(--primary-color);}
+header nav a { margin-left:1.5rem; font-weight:600; transition:0.3s;}
+header nav a:hover { color: var(--secondary-color); }
+
+section { padding:100px 20px 60px; max-width:1200px; margin:0 auto; }
+
+.hero {
+  min-height:100vh;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  background: linear-gradient(to right, #ee0979, #ff6a00);
+  color:#fff; text-align:center; padding:0 20px;
+}
+.hero h1 { font-size:3rem; margin-bottom:1rem; animation: fadeInDown 1s ease forwards; }
+.hero p { font-size:1.2rem; margin-bottom:2rem; animation: fadeIn 2s ease forwards; }
+.hero button { background: #fff; color: var(--primary-color); padding:0.8rem 1.5rem; border:none; border-radius:50px; font-weight:600; transition:0.3s; }
+.hero button:hover { background: var(--secondary-color); color:#fff; }
+
+@keyframes fadeInDown {
+  0% { opacity:0; transform:translateY(-50px);}
+  100% { opacity:1; transform:translateY(0);}
+}
+@keyframes fadeIn {
+  0% { opacity:0;}
+  100% { opacity:1;}
+}
+
+/* Menú flotante (idioma y tema) */
+.floating-menu {
+  position:fixed; bottom:20px; right:20px; display:flex; flex-direction:column; gap:10px; z-index:1000;
+}
+.floating-menu button {
+  padding:0.6rem 0.8rem; border:none; border-radius:50px; background: var(--primary-color); color:#fff;
+  font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.3); transition:0.3s;
+}
+.floating-menu button:hover { background: var(--secondary-color); }
+
+/* WhatsApp flotante */
+.whatsapp {
+  position:fixed; bottom:20px; left:20px; background:#25d366; color:#fff; padding:0.8rem 1rem; border-radius:50px;
+  display:flex; align-items:center; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:1000;
+  transition:0.3s;
+}
+.whatsapp:hover { background:#1ebe57; }
+
+@media (max-width:768px){
+  header { flex-direction:column; align-items:flex-start; padding:1rem;}
+  header nav { margin-top:0.5rem; }
+  .hero h1 { font-size:2.2rem; }
+  .hero p { font-size:1rem; }
+}
+</style>
 </head>
+
 <body>
-  <!-- Header -->
-  <header class="container">
-    <h1>The Galvis Edit</h1>
-    <nav>
-      <a href="#about">Sobre mí</a>
-      <a href="#services">Servicios</a>
-      <a href="#portfolio">Portafolio</a>
-      <a href="#prices">Precios</a>
-      <a href="#booking">Agenda</a>
-      <a href="#contact">Contacto</a>
-    </nav>
-  </header>
 
-  <!-- Hero -->
-  <section class="hero">
-    <h1>Transformo tu contenido en experiencias únicas</h1>
-    <p>Planificación, grabación, edición y entrega profesional de contenido digital para tu negocio o marca personal.</p>
-    <a href="#contact" class="btn">Contáctame</a>
-  </section>
+<header>
+  <div class="logo">The Galvis Edit</div>
+  <nav>
+    <a href="#about">Sobre mí</a>
+    <a href="#services">Servicios</a>
+    <a href="#pricing">Precios</a>
+    <a href="#booking">Agenda</a>
+    <a href="#contact">Contacto</a>
+  </nav>
+</header>
 
-  <!-- Sobre mí -->
-  <section id="about" class="container">
-    <h2>Sobre mí</h2>
-    <p>Soy un creador de contenido con experiencia en video, fotografía y estrategias digitales. Ayudo a marcas y emprendedores a contar historias que conecten y generen resultados reales.</p>
-  </section>
+<section class="hero">
+  <h1>Transformo tus ideas en contenido impactante</h1>
+  <p>Creación de videos, reels, fotos y estrategias de contenido para que tu marca destaque en redes sociales.</p>
+  <button onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'});">Contáctame</button>
+</section>
 
-  <!-- Servicios -->
-  <section id="services" class="container">
-    <h2>Servicios</h2>
-    <div class="grid grid-3">
-      <div class="card"><h3>Planificación de Contenido</h3><p>Diseño la estrategia y calendario de publicaciones para tu marca.</p></div>
-      <div class="card"><h3>Producción de Video</h3><p>Grabación y edición profesional de contenido para redes y YouTube.</p></div>
-      <div class="card"><h3>Gestión de Redes</h3><p>Optimización y publicación de contenido para generar engagement y alcance.</p></div>
-    </div>
-  </section>
+<!-- Menú flotante de idioma y tema -->
+<div class="floating-menu">
+  <button onclick="toggleTheme()">Tema</button>
+  <button onclick="switchLang()">EN/ES</button>
+</div>
 
-  <!-- Portafolio -->
-  <section id="portfolio" class="container">
-    <h2>Portafolio</h2>
-    <div class="grid grid-3">
-      <img src="https://via.placeholder.com/350x200" alt="Trabajo 1">
-      <img src="https://via.placeholder.com/350x200" alt="Trabajo 2">
-      <img src="https://via.placeholder.com/350x200" alt="Trabajo 3">
-    </div>
-  </section>
+<!-- WhatsApp flotante -->
+<a class="whatsapp" href="https://wa.me/15615671778" target="_blank">WhatsApp</a>
 
-  <!-- Precios / Estimados -->
-  <section id="prices" class="container">
-    <h2>Obtén un precio estimado</h2>
-    <form id="quoteForm">
-      <input type="text" name="name" placeholder="Nombre" required>
-      <input type="email" name="email" placeholder="Correo electrónico" required>
-      <select name="service" required>
-        <option value="">Selecciona un servicio</option>
-        <option value="Planificación de contenido">Planificación de contenido</option>
-        <option value="Producción de video">Producción de video</option>
-        <option value="Gestión de redes">Gestión de redes</option>
-      </select>
-      <textarea name="notes" placeholder="Detalles adicionales"></textarea>
-      <button type="submit" class="btn">Enviar solicitud</button>
-      <p class="message" id="quoteMsg"></p>
-    </form>
-  </section>
+<script>
+/* Estado global */
+let state = { lang:'es', theme:'light' };
 
-  <!-- Agenda / Consulta -->
-  <section id="booking" class="container">
-    <h2>Agendar una consulta</h2>
-    <form id="bookingForm">
-      <input type="text" name="name" placeholder="Nombre completo" required>
-      <input type="email" name="email" placeholder="Correo electrónico" required>
-      <input type="date" name="date" required>
-      <input type="time" name="time" required>
-      <select name="service">
-        <option value="">Selecciona un servicio</option>
-        <option value="Planificación">Planificación</option>
-        <option value="Producción">Producción</option>
-        <option value="Gestión">Gestión</option>
-      </select>
-      <textarea name="notes" placeholder="Notas adicionales"></textarea>
-      <button type="submit" class="btn">Agendar</button>
-      <button type="button" class="btn" id="icsBtn">Agregar a mi calendario</button>
-      <p class="message" id="bookingMsg"></p>
-    </form>
-  </section>
+/* Función cambiar idioma */
+function switchLang(){
+  state.lang = state.lang==='es'?'en':'es';
+  applyI18N();
+}
 
-  <!-- Contacto -->
-  <section id="contact" class="container">
-    <h2>Contacto</h2>
-    <form id="contactForm">
-      <input type="text" name="name" placeholder="Nombre" required>
-      <input type="email" name="email" placeholder="Correo electrónico" required>
-      <textarea name="message" placeholder="Mensaje" required></textarea>
-      <button type="submit" class="btn">Enviar</button>
-      <p class="message" id="contactMsg"></p>
-    </form>
-  </section>
+/* Función cambiar tema */
+function toggleTheme(){
+  state.theme = state.theme==='light'?'dark':'light';
+  applyTheme();
+}
 
-  <!-- WhatsApp -->
-  <a href="https://wa.me/15615671778" class="whatsapp" target="_blank">💬</a>
+function applyTheme(){
+  if(state.theme==='dark'){
+    document.body.style.background='#111';
+    document.body.style.color='#eee';
+  }else{
+    document.body.style.background='#f5f5f5';
+    document.body.style.color='#333';
+  }
+}
 
-  <!-- Footer -->
-  <footer>
-    <p>&copy; 2025 The Galvis Edit. Todos los derechos reservados.</p>
-    <p>Visitas: <span id="visitCount">0</span></p>
-  </footer>
+/* Traducciones básicas */
+function applyI18N(){
+  if(state.lang==='es'){
+    document.querySelector('.hero h1').textContent='Transformo tus ideas en contenido impactante';
+    document.querySelector('.hero p').textContent='Creación de videos, reels, fotos y estrategias de contenido para que tu marca destaque en redes sociales.';
+    document.querySelector('.hero button').textContent='Contáctame';
+  }else{
+    document.querySelector('.hero h1').textContent='I transform your ideas into impactful content';
+    document.querySelector('.hero p').textContent='Video, reels, photography and content strategies to make your brand stand out on social media.';
+    document.querySelector('.hero button').textContent='Contact me';
+  }
+}
 
-  <!-- Scripts -->
-  <script>
-    const MAIL_TO='Thegalvisedit@gmail.com';
-    const FORMSPREE_ENDPOINT=''; // opcional si deseas usar Formspree
-
-    // Contador de visitas con CountAPI
-    fetch('https://api.countapi.xyz/hit/thegalvisedit/visits')
-      .then(res=>res.json())
-      .then(data=>{document.getElementById('visitCount').textContent=data.value;});
-
-    function toFormData(form){
-      return Object.fromEntries(new FormData(form).entries());
-    }
-
-    async function sendMail(form, msgEl){
-      const data = toFormData(form);
-      if(FORMSPREE_ENDPOINT){
-        try{
-          const res = await fetch(FORMSPREE_ENDPOINT,{
-            method:'POST',
-            body:JSON.stringify(data),
-            headers:{'Content-Type':'application/json'}
-          });
-          if(res.ok){ msgEl.textContent ='Mensaje enviado!'; form.reset();}
-          else{ msgEl.textContent ='Error al enviar';}
-        }catch(e){ msgEl.textContent ='Error al enviar';}
-      } else {
-        const subject = encodeURIComponent(data.subject || data.service || 'Formulario de contacto');
-        const body = encodeURIComponent(Object.entries(data).map(([k,v])=>`${k}: ${v}`).join('\n'));
-        window.location.href = `mailto:${MAIL_TO}?subject=${subject}&body=${body}`;
-      }
-    }
-
-    document.getElementById('quoteForm')?.addEventListener('submit', e=>{
-      e.preventDefault(); sendMail(e.target, document.getElementById('quoteMsg'));
-    });
-    document.getElementById('bookingForm')?.addEventListener('submit', e=>{
-      e.preventDefault(); sendMail(e.target, document.getElementById('bookingMsg'));
-    });
-    document.getElementById('contactForm')?.addEventListener('submit', e=>{
-      e.preventDefault(); sendMail(e.target, document.getElementById('contactMsg'));
-    });
-
-    // ICS para agenda
-    document.getElementById('icsBtn')?.addEventListener('click', ()=>{
-      const form = document.getElementById('bookingForm');
-      const data = toFormData(form);
-      const start = new Date(`${data.date}T${data.time}`).toISOString().replace(/[-:]|(\.\d{3})/g,'');
-      const endDate = new Date(new Date(`${data.date}T${data.time}`).getTime()+3600*1000).toISOString().replace(/[-:]|(\.\d{3})/g,'');
-      const ics = `BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-SUMMARY:${data.service || 'Consulta'}
-DTSTART:${start}
-DTEND:${endDate}
-DESCRIPTION:${data.notes || ''}
-END:VEVENT
-END:VCALENDAR`;
-      const blob = new Blob([ics],{type:'text/calendar'});
-      const url = URL.createObjectURL(blob);
-      const a=document.createElement('a'); a.href=url; a.download='booking.ics'; a.click();
-      URL.revokeObjectURL(url);
-    });
-  </script>
-</body>
-</html>
+/* Inicialización */
+applyTheme();
+applyI18N();
+</script>
